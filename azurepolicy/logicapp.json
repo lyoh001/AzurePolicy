@@ -1,0 +1,103 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@triggerBody()",
+                    "schema": {
+                        "application": "application",
+                        "business_unit": "business_unit",
+                        "contact": "contact",
+                        "department": "department",
+                        "project_code": "project_code",
+                        "project_manager": "project_manager",
+                        "rate": "rate",
+                        "subscription_name": "subscription_name"
+                    }
+                },
+                "runAfter": {},
+                "type": "ParseJson"
+            },
+            "Send_an_email_(V2)": {
+                "inputs": {
+                    "body": {
+                        "Bcc": "",
+                        "Body": "<p>New Azure Subscription <span style=\"background-color: rgb(65,168,95)\"><strong>@{triggerBody()?['subscription_name']}</strong></span> has been created.<br>\n<br>\n</p><ul>\n  <li>Applied Cenitex Service Fee: @{triggerBody()?['rate']}</li>\n  <li>Department: @{triggerBody()?['department']}</li>\n  <li>Customer Contact: @{triggerBody()?['contact']}</li>\n  <li>Business Unit: @{triggerBody()?['business_unit']}</li>\n  <li>Hosted Application: @{triggerBody()?['application']}</li>\n  <li>Project Code: @{triggerBody()?['project_code']}</li>\n  <li>Project Manager: @{triggerBody()?['project_manager']}<br>\n<br>\n</li>\n</ul>\n<p>Regards,<br>\n<br>\nThank you.</p>",
+                        "Subject": "New Azure Subscription @{triggerBody()?['subscription_name']} created",
+                        "To": ""
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "application": {
+                                "type": "string"
+                            },
+                            "business_unit": {
+                                "type": "string"
+                            },
+                            "contact": {
+                                "type": "string"
+                            },
+                            "department": {
+                                "type": "string"
+                            },
+                            "project_code": {
+                                "type": "string"
+                            },
+                            "project_manager": {
+                                "type": "string"
+                            },
+                            "rate": {
+                                "type": "string"
+                            },
+                            "subscription_name": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "office365": {
+                    "connectionId": "",
+                    "connectionName": "office365",
+                    "id": ""
+                }
+            }
+        }
+    }
+}
